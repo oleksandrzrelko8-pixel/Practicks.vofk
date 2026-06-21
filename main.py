@@ -61,21 +61,28 @@ def view_all_notes(notes):
         tags_str = ", ".join(note['tags']) if note['tags'] else "немає тегів"
         print(f"[ID: {note['id']}] {note['title']} | Теги: {tags_str}")
 
-def search_notes_by_tag(notes):
-    print("\n--- Пошук за тегом ---")
-    tag_to_search = input("Введіть тег для пошуку: ").strip()
-    if not tag_to_search:
-        print("Тег не може бути порожнім!")
+def search_notes(notes):
+    print("\n--- Пошук нотаток ---")
+    search_query = input("Введіть текст або тег для пошуку: ").strip().lower()
+    if not search_query:
+        print("Пошуковий запит не може бути порожнім!")
         return
 
-    found_notes = [note for note in notes if tag_to_search in note['tags']]
+    found_notes = []
+    for note in notes:
+        match_in_tags = any(search_query in tag.lower() for tag in note['tags'])
+        match_in_title = search_query in note['title'].lower()
+        match_in_content = search_query in note['content'].lower()
+        
+        if match_in_tags or match_in_title or match_in_content:
+            found_notes.append(note)
     
     if not found_notes:
-        print(f"Нотаток з тегом '{tag_to_search}' не знайдено.")
+        print(f"Нотаток за запитом '{search_query}' не знайдено.")
     else:
         print(f"Знайдено нотаток: {len(found_notes)}")
         for note in found_notes:
-            tags_str = ", ".join(note['tags'])
+            tags_str = ", ".join(note['tags']) if note['tags'] else "немає тегів"
             print(f"[ID: {note['id']}] {note['title']} | Теги: {tags_str}")
 
 def view_note_by_id(notes):
@@ -162,7 +169,7 @@ def main():
         print("\n=== НОТАТНИК ІЗ ТЕГАМИ ===")
         print("1. Додати нотатку")
         print("2. Переглянути всі нотатки")
-        print("3. Знайти нотатки за тегом")
+        print("3. Знайти нотатки (за текстом або тегом)")
         print("4. Переглянути нотатку за ID")
         print("5. Редагувати нотатку")
         print("6. Видалити нотатку")
@@ -175,7 +182,7 @@ def main():
         elif choice == '2':
             view_all_notes(notes)
         elif choice == '3':
-            search_notes_by_tag(notes)
+            search_notes(notes)
         elif choice == '4':
             view_note_by_id(notes)
         elif choice == '5':
